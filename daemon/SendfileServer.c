@@ -1,4 +1,11 @@
+/**
+  This is the file for background servcie for SyncAnywhere.
+  to compile:
+  rm -rf SendfileServer;gcc -o SendfileServer SendfileServer.c -lpthread;./SendfileServer 
+**/
+
 #include <unistd.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,10 +17,8 @@
 #include <sys/stat.h>
 #include <sys/un.h>
 #include <netinet/in.h>
-#include <pthread.h>
 #include "SyncAnywhereDaemonTypes.h"
 #include "../SyncIPCMsg.h"
-
 
 //used for unix domain socket addressing
 #define SKADDRESS     "/tmp/tsck8"
@@ -28,7 +33,7 @@ int global_udp_port;
 This function listens the socks from GUI, and distribute the
 different GUI request to daemon function
 */
-int sync_listen()
+void *sync_listen()
 {
    int   sock,errno;
    int   fromlen, cnt;
@@ -96,6 +101,13 @@ int sync_listen()
 }
 
 
+void sync_transfer()
+{
+  
+
+}
+
+
 int main(int argc, char **argv)
 {
   int port = 22202;           /* port number to use */
@@ -109,11 +121,16 @@ int main(int argc, char **argv)
   off_t offset = 0;          /* file offset */
   char filename[25];   		/* filename to send */
   int rc;                    /* holds return code of system calls */
+  
+  /**  sync_thread synchronize files between peers while listen_thread dealwith request from the GUI **/
   pthread_t sync_thread, listen_thread;
+  int  iret1, iret2;
+
+  iret1 = pthread_create(&listen_thread,NULL,sync_listen,NULL);
   
-  
-  sync_listen();
-  
+  //sync_listen();
+  pthread_join( listen_thread, NULL);
+
   
   /* check command line arguments, handling an optional port number */
   if (argc == 2) {
