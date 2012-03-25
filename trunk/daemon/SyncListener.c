@@ -58,12 +58,10 @@ void *sync_listen()
       char **plugins = NULL;
       char delims[] = "/";
       case 1:  //add a new file into sync repos
-	      
 		filepath_tmp = get_file_path_from_msg_buf(buf);
 		file_name = basename (filepath_tmp);
 		f_size_tmp = get_file_size(filepath_tmp);
 		printf("haha,file name is %s, the file path is %s,its length is %d\n",file_name,filepath_tmp,f_size_tmp);
-		
 		addItem2SyncRepos(file_name,filepath_tmp,f_size_tmp);
 		printSyncRepos();
 		break;

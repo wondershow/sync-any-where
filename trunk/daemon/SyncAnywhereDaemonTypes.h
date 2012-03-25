@@ -26,8 +26,6 @@ int global_transfer_mode; // TCP or UDP
 int global_tcp_port;
 int global_udp_port;
 
-
-
 void initializeSyncRepos()
 {
   queue_head = 0;
@@ -52,7 +50,6 @@ void addItem2SyncRepos(char *filename, char *filepath, unsigned int file_len)
   }
   pthread_mutex_unlock( &mutex_repos );
 }
-
 
 /**
   to remove an item into sync repository, it should be a thread safe way
@@ -124,3 +121,4 @@ int getUDPPort()
 {
   return global_udp_port;
 }
+

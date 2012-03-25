@@ -16,6 +16,7 @@ rm -rf GUITutor; gcc GUITutor.c -o GUITutor `pkg-config --cflags --libs gtk+-2.0
 #include "../SyncIPCMsg.h"
 #include "IPCAgent.c"
 
+
 GtkWidget * g_head_label;
 GtkTextBuffer * g_unsync_tv_buffer; // to display unsynced file names
 GtkTextBuffer * g_sync_tv_buffer;   // to displaysynced file names
@@ -25,7 +26,7 @@ UnsyncFileList *g_usync_list_head; // a linked list for those unsynced files
 //send_msg_to_daemon
 static gboolean delete_event( GtkWidget *widget,
                               GdkEvent  *event,
-                              gpointer   data )
+                              gpointer   data)
 {
     gtk_main_quit ();
     return FALSE;
@@ -504,8 +505,23 @@ int main( int   argc,
 	g_num_unsync_files = 0;
 	
 	//Initialize for the unsynced file list
-       g_usync_list_head = (UnsyncFileList *) g_malloc(sizeof(UnsyncFileList));
+        g_usync_list_head = (UnsyncFileList *) g_malloc(sizeof(UnsyncFileList));
 	g_usync_list_head->next = NULL;
+	
+	//to set application home directory if necessary
+	set_sync_home();
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	/* Create our window */
