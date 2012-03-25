@@ -10,6 +10,13 @@ This file defines the format for messages used to exchange data between SyncAnyw
 #define SYAW_MSG_NOTIFY_BYTES_FINISHED 3
 #define SYAW_MSG_NOTIFI_NEW_SYNC_FILE 4
 
+
+#define SYAW_SYNC_MODE_UDP 1
+#define SYAW_SYNC_MODE_TCP 2
+
+#define SKADDRESS   "/tmp/tsck8"
+
+
 char *set_add_sync_file_msg(char *filepath,int file_len)
 {
 	char *res,buffer[9],file_len_hex[10];
@@ -35,7 +42,7 @@ char *set_add_sync_file_msg(char *filepath,int file_len)
 }
 
 
-char *get_file_name_from_msg_buf(char *buf)
+char *get_file_path_from_msg_buf(char *buf)
 {
       char *res;
       unsigned int buf_len = (unsigned int)buf[1];
