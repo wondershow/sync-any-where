@@ -61,9 +61,9 @@ void *sync_listen()
 		filepath_tmp = get_file_path_from_msg_buf(buf);
 		file_name = basename (filepath_tmp);
 		f_size_tmp = get_file_size(filepath_tmp);
-		printf("haha,file name is %s, the file path is %s,its length is %d\n",file_name,filepath_tmp,f_size_tmp);
+		//printf("haha,file name is %s, the file path is %s,its length is %d\n",file_name,filepath_tmp,f_size_tmp);
 		addItem2SyncRepos(file_name,filepath_tmp,f_size_tmp);
-		printSyncRepos();
+		//printSyncRepos();
 		break;
       case 2:  // tell daemon which mode to use(tcp/udp)
 		break;
@@ -72,8 +72,7 @@ void *sync_listen()
       case 4:  // reservced
 		break;
     }
-    
-    printf("Request received from GUI, its string is %s, its type is %d\n",buf, (unsigned int) buf[0]);
+    //printf("Request received from GUI, its string is %s, its type is %d\n",buf, (unsigned int) buf[0]);
    }
    close(sock);
 }

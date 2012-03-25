@@ -36,7 +36,9 @@ main()
  { 
     printf("ENTER THE MESSAGE"); 
     scanf("%s",buf);
+    
     write(sd,buf,strlen(buf));
+    
     int count = 0;
     rcvd_file = fopen("rcvd.txt","w");
     //fprintf(rcvd_file,"waaaaaa");

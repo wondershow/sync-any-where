@@ -47,16 +47,18 @@ int main(int argc, char **argv)
   
   /**  sync_thread synchronize files between peers while listen_thread dealwith request from the GUI **/
   pthread_t sync_tcp_server_thread, listen_thread, sync_tcp_client_thread,sync_udp_server_thread, sync_udp_client_thread, master_slave_mgr_thread;
-  int  iret1, iret2;
+  int  iret1, iret2,iret3,iret4,iret5,iret6;
 
-  char *user = getlogin();
+  //char *user = getlogin();
   
-  struct passwd *pw = getpwuid(getuid());
+  //struct passwd *pw = getpwuid(getuid());
 
   set_sync_home();
   
-  char *test = "/home/aniu/GoogleCode_Repos/CoursePoroject6620/sync-any-where/daemon/MasterNodeManage.c";
-  add_file_into_resource(test);
+  initializePeerList();
+  
+  //copy_file_to_apphome("/home/aniu/GoogleCode_Repos/CoursePoroject6620/sync-any-where/daemon/SimpleTCPTransferClient.c");
+  
   //test_md5(test);
   
   /*
@@ -64,16 +66,17 @@ int main(int argc, char **argv)
   {
     
   }*/
+  
   iret1 = pthread_create(&listen_thread,NULL,sync_listen,NULL);
   iret2 = pthread_create(&sync_tcp_server_thread,NULL,tcp_sync_server,NULL);
-  
+  iret3 = pthread_create(&sync_tcp_client_thread,NULL,tcp_sync_client,NULL);
   
   //sync_listen();
   
   
   pthread_join( listen_thread, NULL);
   pthread_join( sync_tcp_server_thread, NULL);
-  
+  pthread_join( tcp_sync_client, NULL);
   
   //tcp_sync();
   
