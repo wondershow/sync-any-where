@@ -4,18 +4,32 @@ Including thread-safe access functions.
 **/
 
 #include <pthread.h>
-#define MAX_REPOS_NUM 10//the max number of unsynced file in the repository
+#define MAX_REPOS_NUM 30//the max number of unsynced file in the repository
+#define MAX_PEER_NUM 10// the max number of peers
 
 typedef struct sync_file_items
 {
   char filename[32];
   char filepath[150];
   unsigned int file_size;
+  char dest_ip[20];
+  
+  
+  
+  int is_used; 
 } SyncReposItem;
 
+typedef struct peer_ip
+{
+  char ip[30];
+  
+  /**indicate whpeer_listether this item is valqueue_headid, 0 means valied, 1 means invalud**/
+  int is_used;
+} PeerIp;
 //mutex for safe access to SyncReposItem
 pthread_mutex_t mutex_repos = PTHREAD_MUTEX_INITIALIZER;
 SyncReposItem syncfile_repos[MAX_REPOS_NUM];
+PeerIp peer_list[MAX_PEER_NUM];
 int queue_head = 0;
 int queue_tail = 0;
 
@@ -32,23 +46,40 @@ void initializeSyncRepos()
   queue_tail = 0;
 }
 
-
 /**
   to add an item into sync repository, it should be a thread safe way
 **/
 void addItem2SyncRepos(char *filename, char *filepath, unsigned int file_len)
 {
   pthread_mutex_lock( &mutex_repos );
-  strcpy((char *)(syncfile_repos[queue_head].filename),filename );
-  strcpy((char *)(syncfile_repos[queue_head].filepath),filepath );
-  syncfile_repos[queue_head].file_size = file_len;
-  queue_head++;
   
-  if(queue_head==MAX_REPOS_NUM)
+  
+  int i;
+  for(i=0;i<MAX_PEER_NUM;i++)
   {
-     queue_head = 0;
+    if(peer_list[i].is_used==0 && is_local_ip(peer_list[i].ip) == 0)
+    { 	// when this peer_list item is valid and its correponding ip is not the local machine
+	strcpy((char *)(syncfile_repos[queue_head].filename),filename );
+	strcpy((char *)(syncfile_repos[queue_head].filepath),filepath );
+	sprintf(syncfile_repos[queue_head].dest_ip,"%s",peer_list[i].ip);
+	syncfile_repos[queue_head].file_size = file_len;
+	queue_head++;
+	if(queue_head==MAX_REPOS_NUM)
+	{
+	  queue_head = 0;
+	}
+    }
   }
+  
   pthread_mutex_unlock( &mutex_repos );
+}
+
+
+void getCurrentUnsyncedFile(char *filename, unsigned int *file_len, char *ip)
+{
+  sprintf(filename,"%s", syncfile_repos[queue_tail].filename);
+  *file_len = syncfile_repos[queue_tail].file_size;
+  sprintf(ip,"%s", syncfile_repos[queue_tail].dest_ip);
 }
 
 /**
@@ -120,5 +151,18 @@ void setUDPPort(int port)
 int getUDPPort()
 {
   return global_udp_port;
+}
+
+int initializePeerList()
+{
+  int i;
+  for(i=0;i<MAX_PEER_NUM;i++)
+  {
+    peer_list[i].is_used = 1;
+  }
+  sprintf(peer_list[0].ip,"131.96.49.139"); //ip of master node
+  peer_list[0].is_used = 0;
+  sprintf(peer_list[1].ip,"131.96.49.218"); //ip of current node
+  peer_list[1].is_used = 0;
 }
 
