@@ -46,7 +46,18 @@ static gboolean add_entry_unsync_list(gchar *filepath)
 		filename = *plugins;
 	}
 	
-	add_file_to_sync_repos(filepath);
+	//to copy a file into apphome;
+	printf("File path is %s \n",filepath);
+	copy_file_to_apphome(filepath);
+	
+	
+	char file_new_path[200];
+	
+	sprintf(file_new_path,"%s/%s",get_sync_home_path(),basename(filepath));
+	
+	//printf("Filename in the repository is %s \n", file_new_path);
+	//To communicate with bg daemon, send the file to that daemon to synchronize
+	add_file_to_sync_repos(file_new_path);
 	
 	gtk_text_buffer_get_iter_at_offset(g_unsync_tv_buffer, &iter, 0);
 	g_num_unsync_files++;
@@ -425,7 +436,7 @@ static GtkWidget *set_header( gboolean homogeneous,
     GtkWidget *button;
     GtkWidget *label;
     char padstr[80];
-     
+    
     /* Create a new hbox with the appropriate homogeneous
      * and spacing settings */
     box = gtk_hbox_new (FALSE, spacing);
