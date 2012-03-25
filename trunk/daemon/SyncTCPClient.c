@@ -1,20 +1,10 @@
-#include<netinet/in.h> 
-#include <sys/types.h> 
-#include <sys/socket.h> 
-#include<stdio.h> 
-#include <arpa/inet.h> 
-#include <string.h> 
-#include<fcntl.h> 
-#include <sys/sendfile.h>
-
-
-main() 
-{ 
- int sd,cd; 
- char buf[1000]="",buf1[1000]=""; 
- struct sockaddr_in ser;
- FILE *rcvd_file;
- int con_res = 3;
+void *tcp_sync_client()
+{
+   int sd,cd; 
+  char buf[1000]="",buf1[1000]=""; 
+  struct sockaddr_in ser;
+  FILE *rcvd_file;
+  int con_res = 3;
 
  sd=socket(AF_INET,SOCK_STREAM,0); 
  if(sd<0)
@@ -68,4 +58,4 @@ main()
     fclose(rcvd_file);
  } 
  close(sd); 
-} 
+}
