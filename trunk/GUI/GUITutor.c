@@ -31,7 +31,6 @@ static gboolean delete_event( GtkWidget *widget,
     return FALSE;
 }
 
-
 static gboolean add_entry_unsync_list(gchar *filepath)
 {
 	gchar *filename;
@@ -113,9 +112,6 @@ cb_clicked( GtkButton *button,
 	//g_file_set_contents( filename, string, -1, NULL );
 	
 	add_entry_unsync_list(filepath);
-
-	
-	
 
 	//gtk_statusbar_pop(statusbar, 0); 
 	/*
