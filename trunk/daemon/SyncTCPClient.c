@@ -94,7 +94,7 @@ int get_tcp_port(char *remote_ip)
       ser.sin_port=htons(10021);
       printf("get_tcp_port: ip is %s, port is %d\n",remote_ip,10021);
       //To connect to remote ip
-      inet_aton("131.96.49.204",&ser.sin_addr); 
+      inet_aton(remote_ip,&ser.sin_addr); 
       //initiate connectiondest_ip
       con_res = connect(sd,(struct sockaddr *)&ser,sizeof(ser)); 
       
