@@ -57,6 +57,11 @@ void *sync_listen()
       int f_size_tmp;
       char **plugins = NULL;
       char delims[] = "/";
+      
+      char *port;
+      int port_num;
+      int msg_len;
+      int protocol;
       case 1:  //add a new file into sync repos
 		filepath_tmp = get_file_path_from_msg_buf(buf);
 		file_name = basename (filepath_tmp);
@@ -66,6 +71,25 @@ void *sync_listen()
 		//printSyncRepos();
 		break;
       case 2:  // tell daemon which mode to use(tcp/udp)
+		
+		msg_len = (unsigned int)buf[1]; // the second byte is length of msg
+		//sprintf(port,%s,)
+		port = (char *)malloc(msg_len-2);
+		printf("Here it is, they want to set tcp/udp,%d, %s\n",protocol,port);
+		strncpy(port,buf+3,msg_len-2);
+		protocol = (unsigned int)buf[2];
+		if(buf[2] == TRANS_PROTOCOL_TCP)
+		{
+		   setTCPPort(atoi(port));
+		   setTransferMode(SYAW_SYNC_MODE_TCP);
+		   restart_tcp_server();
+		}
+		else
+		{
+		   setUDPPort(atoi(port));
+		   setTransferMode(SYAW_SYNC_MODE_UDP);
+		}
+		printf("Here it is, they want to set tcp/udp,%d, %s\n",protocol,port);
 		break;
       case 3:  // reserved
 		break;

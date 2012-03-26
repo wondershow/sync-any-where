@@ -29,10 +29,10 @@ This file defines the format for messages used to exchange data between SyncAnyw
 
 
 
-#define SYAW_MSG_ADD_SYNC_FILE 1
-#define SYAW_MSG_NOTIFY_PROTOCOL 2PEER_LIST_FILE_NAME
-#define SYAW_MSG_NOTIFY_BYTES_FINISHED 3
-#define SYAW_MSG_NOTIFI_NEW_SYNC_FILE 4
+#define SYAW_MSG_ADD_SYNC_FILE 1    // msg to tell daemon to add a new file to sync
+#define SYAW_MSG_NOTIFY_PROTOCOL 2  //indicate tcp or udp, and its port
+#define SYAW_MSG_NOTIFY_BYTES_FINISHED 3 //
+#define SYAW_MSG_NOTIFI_NEW_SYNC_FILE 4 //
 
 
 #define SYAW_SYNC_MODE_UDP 1
@@ -56,7 +56,8 @@ This file defines the format for messages used to exchange data between SyncAnyw
 #define MANAGE_CMD_REQ_UDP_PORT "get_udp_port" //get udp port of this server
 #define MANAGE_CMD_REQ_TCP_PORT "get_tcp_port" //get tcp port of this server
 
-
+#define TRANS_PROTOCOL_TCP 1
+#define TRANS_PROTOCOL_UDP 1
 
 
 
@@ -72,7 +73,9 @@ char global_sync_home[200]; // THE Home repository of SyncAnywhere at current ma
 char global_peer_file_path[200]; // The peer list file path for SyncAnywhere
 char global_resource_list_path[200]; //The resource list file path for SyncAnywhere
 
-
+/**
+  To create a msg telling daemon to add a new file to sync
+**/
 char *set_add_sync_file_msg(char *filepath,int file_len)
 {
 	char *res,buffer[9],file_len_hex[10];
@@ -96,6 +99,29 @@ char *set_add_sync_file_msg(char *filepath,int file_len)
 	//*buf_len = msg_len;
 	return res;
 }
+
+
+/**
+  To create a msg telling daemon which mode(tcp/udp) and port to use
+**/
+char *set_set_trans_mode_msg(int mode,char* port)
+{
+	char *res,buffer[50];
+	int msg_len = 4 + strlen(port);
+	
+	
+	// to set the format of msg_buf
+	res = (char *)malloc(msg_len);
+	res[0] = (unsigned int)SYAW_MSG_NOTIFY_PROTOCOL;
+	res[1] = (unsigned int)msg_len;
+	res[2] = (unsigned int)mode; // mode 1 means tcp, 2 means 
+	memcpy(res+3, port, strlen(port));
+	printf("res 2 is %d, mode is %d \n",res[2],mode);
+	//printf("The res is %s, filepath is %s, length is %d \n",res,filepath,strlen(res));
+	//*buf_len = msg_len;
+	return res;
+}
+
 
 
 char *get_file_path_from_msg_buf(char *buf)
