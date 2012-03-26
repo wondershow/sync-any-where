@@ -29,6 +29,7 @@
 #include "SyncTCPServer.c"
 #include "SyncTCPClient.c"
 #include "SyncListener.c"
+#include "PeerManage.c"
 
 
 
@@ -46,7 +47,7 @@ int main(int argc, char **argv)
   setTCPPort(22202);
   
   /**  sync_thread synchronize files between peers while listen_thread dealwith request from the GUI **/
-  pthread_t sync_tcp_server_thread, listen_thread, sync_tcp_client_thread,sync_udp_server_thread, sync_udp_client_thread, master_slave_mgr_thread;
+  pthread_t sync_tcp_server_thread, listen_thread, sync_tcp_client_thread,sync_udp_server_thread, sync_udp_client_thread, peer_mgr_thread;
   int  iret1, iret2,iret3,iret4,iret5,iret6;
 
   //char *user = getlogin();
@@ -70,6 +71,8 @@ int main(int argc, char **argv)
   iret1 = pthread_create(&listen_thread,NULL,sync_listen,NULL);
   iret2 = pthread_create(&sync_tcp_server_thread,NULL,tcp_sync_server,NULL);
   iret3 = pthread_create(&sync_tcp_client_thread,NULL,tcp_sync_client,NULL);
+  iret4 = pthread_create(&peer_mgr_thread,NULL,peer_manange,NULL);
+  
   
   //sync_listen();
   
@@ -77,6 +80,7 @@ int main(int argc, char **argv)
   pthread_join( listen_thread, NULL);
   pthread_join( sync_tcp_server_thread, NULL);
   pthread_join( tcp_sync_client, NULL);
+  pthread_join( peer_mgr_thread, NULL);
   
   //tcp_sync();
   
