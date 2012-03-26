@@ -42,8 +42,6 @@ static gboolean send_msg_to_daemon(gchar *buf)
     printf("sendto failure %d\n", errno);
     exit(1);
   }
-  
-  
 }
 
 static gboolean add_file_to_sync_repos(gchar *filepath)
@@ -58,7 +56,7 @@ static gboolean add_file_to_sync_repos(gchar *filepath)
 static gboolean change_tcp_udp_port(int mode, char *port)
 {
       gchar *msg_buf;
-      printf("In the function of change_tcp_udp_port \n" );
+      printf("In the function of change_tcp_udp_port, mode is %d,port is %s \n",mode,port );
       msg_buf= set_set_trans_mode_msg(mode, port);
       send_msg_to_daemon(msg_buf);
 }
