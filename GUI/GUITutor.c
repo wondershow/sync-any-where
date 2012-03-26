@@ -23,7 +23,7 @@ GtkTextBuffer * g_sync_tv_buffer;   // to displaysynced file names
 gint g_num_unsync_files;
 UnsyncFileList *g_usync_list_head; // a linked list for those unsynced files 
 
-//send_msg_to_daemon
+//send_msg_to_daemon1
 static gboolean delete_event( GtkWidget *widget,
                               GdkEvent  *event,
                               gpointer   data)
