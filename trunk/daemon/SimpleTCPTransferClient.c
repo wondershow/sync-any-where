@@ -21,9 +21,9 @@ main()
  printf("SOCKET NOT CREATED\n"); 
  bzero(&ser,sizeof(struct sockaddr_in)); 
  ser.sin_family=AF_INET; 
- ser.sin_port=htons(22202); 
+ ser.sin_port=htons(10020); 
  
- inet_aton("localhost",&ser.sin_addr); 
+ inet_aton("131.96.39.139",&ser.sin_addr); 
 
  con_res = connect(sd,(struct sockaddr *)&ser,sizeof(ser)); 
   
