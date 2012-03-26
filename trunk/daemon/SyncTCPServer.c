@@ -48,7 +48,7 @@ void *tcp_sync_server()
   
   
   while (1) {
-
+    char rcvd_buf[1000];
     /* wait for a client to connect */
     desc = accept(sock, (struct sockaddr *)  &addr1, &addrlen);
     
@@ -74,52 +74,36 @@ void *tcp_sync_server()
     char filepath[250];
     
     sprintf(filepath, "%s/%s",get_sync_home_path(),filename);
-    printf("The file name is %s, path is %s",filename,filepath);
+    printf("\n The file name is %s, path is %s \n",filename,filepath);
     
+    /**The second step is to reply an OK to client**/
+    char buf[20];
+    sprintf(buf,"%s","OK");
+    write(desc,buf,strlen(buf));
     
+    /**The 3rd step is to recefile from remote client**/
+    fd = fopen(filepath, "w");
+    if(fd<=0)
+      printf("Failed to open the file \n");
+    //while( count = read(sd,buf,1000) >0)
     
-    
-    
-    
-    
-    
-    
-    
-    
-    /* exit server if filename is "quit" */
-    if (strcmp(filename, "quit") == 0) {
-      fprintf(stderr, "quit command received, shutting down server\n");
-      break;
+    int count =0;
+    bzero(rcvd_buf,1000);
+    while( count = read(desc,rcvd_buf,1000) >0)
+    {
+	int i=0;
+	
+	for(;i<1000;i++)
+	{
+	  if(rcvd_buf[i]!=0)
+	      fprintf(fd,"%c",rcvd_buf[i]);
+	  else
+	      break;
+	}
+	bzero(rcvd_buf,1000);
     }
-
-    fprintf(stderr, "received request to send file %s\n", filename);
-    printf("File name is %s \n",filename);
-    /* open the file to be sent */
-    fd = open(filename, O_RDONLY);
-    if (fd == -1) {
-      fprintf(stderr, "unable to open '%s': %s\n", filename, strerror(errno));
-      exit(1);
-    }
-
-    /* get the size of the file to be sent */
-    fstat(fd, &stat_buf);
-
-    /* copy file using sendfile */
-    offset = 0;
-    rc = sendfile (desc, fd, &offset, stat_buf.st_size);
-    if (rc == -1) {
-      fprintf(stderr, "error from sendfile: %s\n", strerror(errno));
-      exit(1);
-    }
-    if (rc != stat_buf.st_size) {
-      fprintf(stderr, "incomplete transfer from sendfile: %d of %d bytes\n",
-              rc, (int)stat_buf.st_size);
-      exit(1);
-    }   
-
-    /* close descriptor for file that was sent */
+    
     close(fd);
-
     /* close socket descriptor */
     close(desc);
   
