@@ -5,7 +5,7 @@ how to compile:
 gcc GUITutor.c -o GUITutor `pkg-config --cflags --libs gtk+-2.0`
 
 TO save time:
-rm -rf GUITutor; gcc GUITutor.c -o GUITutor `pkg-config --cflags --libs gtk+-2.0`; ./GUITutor
+rm -rf GUITutor; gcc GUITutor.c -o GUITutor `pkg-config --cflags --libs gtk+-2.0 --libs gthread`; ./GUITutor
 
 ***/
 
@@ -24,7 +24,7 @@ gint g_num_unsync_files;
 UnsyncFileList *g_usync_list_head; // a linked list for those unsynced files 
 GtkWidget *g_udp_port_entry;
 GtkWidget *g_tcp_port_entry;
-
+GtkWidget  *progress_bar_label;
 
 //send_msg_to_daemon1
 static gboolean delete_event( GtkWidget *widget,
@@ -502,7 +502,39 @@ static GtkWidget *set_header( gboolean homogeneous,
     return box;
 }
 
+set_progress_bar(int bytes_sent, char *file_name, int file_length)
+{
+    char buf_tmp[105];
+    int i=0;
+    int progress_bar_width = 50;
+    sprintf(buf_tmp,"%s","");
+    
+    
+    for(i=0;i<progress_bar_width;i++)
+    {
+      strcat(buf_tmp,"=");
+    }
+    
+    
+    printf("%s\n",buf_tmp);
+    int percentage = (int)(100*bytes_sent/file_length);
+    char per_buf[50];
+    sprintf(per_buf,"(%d%%)",percentage);
+    
+    char process_info[100];
+    sprintf(process_info,"%s%s",file_name,per_buf);
+    for(i=0;i<(int) (progress_bar_width*bytes_sent/file_length);i++)
+    {
+      buf_tmp[i] = '>';
+    }
+    
+    memcpy(buf_tmp+20,process_info,strlen(process_info));
+    
+    char progress_bar_buf[300];
+    sprintf(progress_bar_buf,"<span font_style='italic' font='10' color='brown'>%s</span>",buf_tmp);
+    gtk_label_set_markup(progress_bar_label, progress_bar_buf);
 
+}
 
 
 
@@ -524,14 +556,25 @@ static GtkWidget *set_status_bar( gboolean homogeneous,
      * and spacing settings */
     box = gtk_hbox_new (FALSE, spacing);
     
-    label = gtk_label_new ("SyncAnywhere!");
-    gtk_label_set_markup(label, "<span font_style='italic' font='25' color='brown'>This is the status bar</span>");
+    progress_bar_label = gtk_label_new ("SyncAnywhere!");
+    gtk_label_set_markup(progress_bar_label, "<span font_style='italic' font='25' color='brown'>This is the status bar</span>");
 
-    gtk_box_pack_start (GTK_BOX (box), label, expand, fill, padding);
-    gtk_widget_show (label);
+    gtk_box_pack_start (GTK_BOX (box), progress_bar_label, expand, fill, padding);
+    gtk_widget_show (progress_bar_label);
     
     return box;
 
+}
+
+void gui_listener_thread()
+{
+  while(1)
+  {
+    gdk_threads_enter ();
+    printf("Thread test in \n");
+    gdk_threads_leave ();
+    sleep(1);
+  }
 }
 
 int main( int   argc,
@@ -545,7 +588,14 @@ int main( int   argc,
 	GtkWidget *label;
 	GtkWidget *quitbox;
 	int which;
-	
+	pthread_t test_thread;
+
+
+
+	/* init threads */	
+	g_thread_init(NULL);
+	gdk_threads_init();
+	gdk_threads_enter ();
 
 
 
@@ -645,7 +695,7 @@ int main( int   argc,
 
 	/* And of course, our main function. */
 	gtk_main ();
-
+	gdk_threads_leave();
 	/* Control returns here when gtk_main_quit() is called, but not when 
 	* exit() is used. */
 	return 0;
