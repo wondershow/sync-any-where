@@ -13,6 +13,8 @@ void *tcp_sync_server()
   int rc;                    /* holds return code of system calls */
  
   port = getTCPPort();
+
+
   
   
   printf("The tcp port is %d \n",port);
@@ -30,6 +32,7 @@ void *tcp_sync_server()
   addr.sin_port = htons(port);
 
   /* bind socket to the port */
+
   rc =  bind(sock, (struct sockaddr *)&addr, sizeof(addr));
   if (rc == -1) {
     fprintf(stderr, "unable to bind to socket: %s\n", strerror(errno));
@@ -45,10 +48,11 @@ void *tcp_sync_server()
    
   fprintf(stderr, "Just for fun\n");
   
+
   
   
   while (1) {
-    char rcvd_buf[1000];
+    char rcvd_buf[1000] = "";
     /* wait for a client to connect */
     desc = accept(sock, (struct sockaddr *)  &addr1, &addrlen);
     
@@ -88,22 +92,29 @@ void *tcp_sync_server()
     //while( count = read(sd,buf,1000) >0)
     
     int count =0;
+    int i=0;
     bzero(rcvd_buf,1000);
+    
     while( count = read(desc,rcvd_buf,1000) >0)
     {
-	int i=0;
-	
+	i = 0;
+	printf("Count is %d \n",count);
 	for(;i<1000;i++)
 	{
 	  if(rcvd_buf[i]!=0)
 	      fprintf(fd,"%c",rcvd_buf[i]);
-	  else
-	      break;
 	}
 	bzero(rcvd_buf,1000);
     }
     
-    close(fd);
+    
+    
+    
+    
+    
+    
+    
+    fclose(fd);
     /* close socket descriptor */
     close(desc);
   
