@@ -138,7 +138,9 @@ void setTCPPort(int port)
 
 int getTCPPort()
 {
-  return global_tcp_port;
+  printf("In function getTCPPort(): gsdfasdfcp_port:%d",global_tcp_port);
+  int res = global_tcp_port;
+  return res;
 }
 
 void setUDPPort(int port)
