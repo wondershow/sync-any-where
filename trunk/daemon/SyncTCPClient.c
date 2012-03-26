@@ -207,33 +207,72 @@ int tcpsend_file_to_remote_peer(char *filename,char *dest_ip,int port)
     /* open the file to be sent */
     char filepath[200];
     sprintf(filepath,"%s/%s", get_sync_home_path(),filename);
-    fd = open(filepath, O_RDONLY);
-    if (fd == -1) {
-      fprintf(stderr, "unable to open '%s': %s\n", filepath, strerror(errno));
-      exit(1);
-    }
-
-    /* get the size of the file to be sent */
-    fstat(fd, &stat_buf);
-
-    /* copy file using sendfile */
-    offset = 0;
-    rc = sendfile (sd, fd, &offset, stat_buf.st_size);
-    if (rc == -1) {
-      fprintf(stderr, "error from sendfile: %s\n", strerror(errno));
-      exit(1);
-    } else
-    {
-      printf("file sending success 1\n");
-    }
-    if (rc != stat_buf.st_size) {
-      fprintf(stderr, "incomplete transfer from sendfile: %d of %d bytes\n",
-              rc, (int)stat_buf.st_size);
-      exit(1);
-    }
-    else
-      printf("file sending success 2\n");
     
+    
+     int inputFd, outputFd, openFlags;
+     mode_t filePerms;
+     ssize_t numRead;
+     int buf_size = 1000;
+     char send_buf[buf_size];
+ 
+     inputFd = open(filepath, O_RDONLY);
+     if (inputFd == -1)
+         printf("opening file error");
+ 
+     /* Transfer data until we encounter end of input or an error */
+     int byteSend = 0; 
+     while ((numRead = read(inputFd, send_buf, buf_size)) > 0)
+     {
+         if (write(sd, send_buf, numRead) != numRead)
+             printf("couldn't write whole buffer");
+	 else
+	 {
+	     byteSend += numRead;
+	     printf("Bytes sent: %d",byteSend);
+	 }
+	     
+     }
+     close(inputFd);
+    
+    
+    
+    
+    
+    /**The following part sends file in one shot, this 
+    cant meet our req, as we need process bar 
+    information but we make it a bak up**/
+    
+    /**bakup start**/
+//     fd = open(filepath, O_RDONLY);
+//     if (fd == -1) {
+//       fprintf(stderr, "unable to open '%s': %s\n", filepath, strerror(errno));
+//       exit(1);
+//     }
+// 
+//     /* get the size of the file to be sent */
+//     fstat(fd, &stat_buf);
+// 
+//     /* copy file using sendfile */
+//     offset = 0;
+//     
+//     
+//     rc = sendfile (sd, fd, &offset, stat_buf.st_size);
+//     if (rc == -1) {
+//       fprintf(stderr, "error from sendfile: %s\n", strerror(errno));
+//       exit(1);
+//     } else
+//     {
+//       printf("file sending success 1\n");
+//     }
+//     if (rc != stat_buf.st_size) {
+//       fprintf(stderr, "incomplete transfer from sendfile: %d of %d bytes\n",
+//               rc, (int)stat_buf.st_size);
+//       exit(1);
+//     }
+//     else
+//       printf("file sending success 2\n");
+// //       close(fd);/** Should be added, but not tested yet**/
+    /**bakup ends**/
     
     
     removeItemFromSyncRepos();

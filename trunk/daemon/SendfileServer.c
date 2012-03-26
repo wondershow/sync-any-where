@@ -32,22 +32,23 @@
 #include "PeerManage.c"
 
 
+/**  sync_thread synchronize files between peers while listen_thread dealwith request from the GUI **/
+pthread_t sync_tcp_server_thread, listen_thread, sync_tcp_client_thread,sync_udp_server_thread, sync_udp_client_thread, peer_mgr_thread;
 
-int main(int argc, char **argv)
+void restart_tcp_server()
 {
-  
-  
-  
-  initializeSyncRepos(); // to initialize the file repository
-  
-  setTransferMode(SYAW_SYNC_MODE_TCP);
-  
-  global_transfer_mode = SYAW_SYNC_MODE_TCP; // to set default tranfer mode
-  
-  setTCPPort(22206);
-  
-  /**  sync_thread synchronize files between peers while listen_thread dealwith request from the GUI **/
-  pthread_t sync_tcp_server_thread, listen_thread, sync_tcp_client_thread,sync_udp_server_thread, sync_udp_client_thread, peer_mgr_thread;
+    printf("Tring to restart tcp daemon, new port is %d \n", getTCPPort());
+    pthread_kill(sync_tcp_server_thread);
+    pthread_create(&sync_tcp_server_thread,NULL,tcp_sync_server,NULL);
+    pthread_join( sync_tcp_server_thread, NULL);
+    return;
+}
+
+
+void startDaemon()
+{
+      
+ 
   int  iret1, iret2,iret3,iret4,iret5,iret6;
 
   //char *user = getlogin();
@@ -81,6 +82,25 @@ int main(int argc, char **argv)
   pthread_join( sync_tcp_server_thread, NULL);
   pthread_join( tcp_sync_client, NULL);
   pthread_join( peer_mgr_thread, NULL);
+
+}
+
+int main(int argc, char **argv)
+{
+  
+  
+  
+  initializeSyncRepos(); // to initialize the file repository
+  
+  setTransferMode(SYAW_SYNC_MODE_TCP);
+  
+  global_transfer_mode = SYAW_SYNC_MODE_TCP; // to set default tranfer mode
+  
+  setTCPPort(22206);
+  
+  setUDPPort(33306);
+  
+  startDaemon();
   
   //tcp_sync();
   

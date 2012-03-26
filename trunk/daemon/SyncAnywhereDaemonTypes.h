@@ -164,7 +164,7 @@ int initializePeerList()
   }
   sprintf(peer_list[0].ip,"131.96.49.139"); //ip of master node
   peer_list[0].is_used = 0;
-  sprintf(peer_list[1].ip,"131.96.49.218"); //ip of current node
+  sprintf(peer_list[1].ip,"131.96.49.204"); //ip of current node
   peer_list[1].is_used = 0;
 }
 

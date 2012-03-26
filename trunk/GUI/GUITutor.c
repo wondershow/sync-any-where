@@ -22,6 +22,9 @@ GtkTextBuffer * g_unsync_tv_buffer; // to display unsynced file names
 GtkTextBuffer * g_sync_tv_buffer;   // to displaysynced file names
 gint g_num_unsync_files;
 UnsyncFileList *g_usync_list_head; // a linked list for those unsynced files 
+GtkWidget *g_udp_port_entry;
+GtkWidget *g_tcp_port_entry;
+
 
 //send_msg_to_daemon1
 static gboolean delete_event( GtkWidget *widget,
@@ -140,6 +143,33 @@ cb_clicked( GtkButton *button,
 	g_free(msg);*/
 }
 
+static void radio_button_toggled(GtkWidget *radiobutton, gpointer data)
+{
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radiobutton)))
+    {
+        g_print("%s active\n", gtk_button_get_label(GTK_BUTTON(radiobutton)));
+	if(strcmp(gtk_button_get_label(GTK_BUTTON(radiobutton)),"UDP")==0)
+	{
+	    gchar *udp_port;
+	    
+	    if(udp_port!=NULL)
+	    {
+	      udp_port = gtk_entry_get_text(GTK_ENTRY(g_udp_port_entry));
+	      change_tcp_udp_port(TRANS_PROTOCOL_UDP,udp_port);
+	    }
+	}
+	if(strcmp(gtk_button_get_label(GTK_BUTTON(radiobutton)),"TCP")==0)
+	{
+	    gchar *tcp_port;
+	    if(tcp_port != NULL)
+	    {
+	      tcp_port = gtk_entry_get_text(GTK_ENTRY(g_tcp_port_entry));
+	      change_tcp_udp_port(TRANS_PROTOCOL_TCP,tcp_port);
+	    }
+	}
+    }
+}
+
 
 /* Make a new hbox filled with button-labels. Arguments for the 
  * variables we're interested are passed in to this function. 
@@ -190,6 +220,11 @@ static GtkWidget *set_menu_box(  gboolean homogeneous,
     hbox2 = gtk_hbox_new (FALSE, spacing);
     
     button = gtk_radio_button_new_with_label (NULL, "TCP");//TCP Radio button
+    //gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+    g_signal_connect(button, "toggled", G_CALLBACK(radio_button_toggled), NULL);
+    
+    
+    
     gtk_box_pack_start (GTK_BOX (hbox2), button, TRUE, TRUE, 0);
     gtk_widget_show (button);
      
@@ -199,12 +234,12 @@ static GtkWidget *set_menu_box(  gboolean homogeneous,
     gtk_box_pack_start (GTK_BOX (hbox2), label, TRUE, TRUE, 0);  
     gtk_widget_show (label); 
 
-    entry = gtk_entry_new ();// TCP port input
-    gtk_entry_set_max_length (GTK_ENTRY (entry), 0);
-    gtk_entry_set_text (GTK_ENTRY (entry), "50001");
-    gtk_widget_set_size_request(entry,40,-1);
-    gtk_box_pack_start (GTK_BOX (hbox2), entry, TRUE, TRUE, 0);
-    gtk_widget_show (entry);
+    g_tcp_port_entry = gtk_entry_new ();// TCP port input
+    gtk_entry_set_max_length (GTK_ENTRY (g_tcp_port_entry), 0);
+    gtk_entry_set_text (GTK_ENTRY (g_tcp_port_entry), "50001");
+    gtk_widget_set_size_request(g_tcp_port_entry,40,-1);
+    gtk_box_pack_start (GTK_BOX (hbox2), g_tcp_port_entry, TRUE, TRUE, 0);
+    gtk_widget_show (g_tcp_port_entry);
 
     gtk_box_pack_start (GTK_BOX (vbox1), hbox2, TRUE, TRUE, 0); // Add to the larger vertical box
     gtk_widget_show (hbox2);
@@ -214,7 +249,13 @@ static GtkWidget *set_menu_box(  gboolean homogeneous,
     hbox2 = gtk_hbox_new (FALSE, spacing);
      
     group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button)); //UDP radio button
-    button = gtk_radio_button_new_with_label (group, "UDP");
+    button = gtk_radio_button_new_with_label (gtk_radio_button_get_group(GTK_RADIO_BUTTON(button)), "UDP");
+    g_signal_connect(button, "toggled", G_CALLBACK(radio_button_toggled), NULL);
+    
+    
+    
+    
+    
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
     gtk_box_pack_start (GTK_BOX (hbox2), button, TRUE, TRUE, 0);
     gtk_widget_show (button);
@@ -224,12 +265,12 @@ static GtkWidget *set_menu_box(  gboolean homogeneous,
     gtk_box_pack_start (GTK_BOX (hbox2), label, TRUE, TRUE, 0);  
     gtk_widget_show (label);
 
-    entry = gtk_entry_new ();// UDP port input
-    gtk_entry_set_max_length (GTK_ENTRY (entry), 0);
-    gtk_entry_set_text (GTK_ENTRY (entry), "50001");
-    gtk_widget_set_size_request(entry,40,-1);
-    gtk_box_pack_start (GTK_BOX (hbox2), entry, TRUE, TRUE, 0);
-    gtk_widget_show (entry);
+    g_udp_port_entry = gtk_entry_new ();// UDP port input
+    gtk_entry_set_max_length (GTK_ENTRY (g_udp_port_entry), 0);
+    gtk_entry_set_text (GTK_ENTRY (g_udp_port_entry), "50001");
+    gtk_widget_set_size_request(g_udp_port_entry,40,-1);
+    gtk_box_pack_start (GTK_BOX (hbox2), g_udp_port_entry, TRUE, TRUE, 0);
+    gtk_widget_show (g_udp_port_entry);
 
     gtk_box_pack_start (GTK_BOX (vbox1), hbox2, TRUE, TRUE, 0); // Add to the larger vertical box
     gtk_widget_show (hbox2);	
