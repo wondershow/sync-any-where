@@ -14,7 +14,9 @@ void peer_manange()
   char request_code[100];    /* Request Code get from client file SyncIPCMsg.h for details*/
   int rc;
   
-  port = MANAGE_PORT; 		// manage port of SyncAnywhere
+  port = 10020; 		// manage port of SyncAnywhere
+  
+  
   
   /* create Internet dotcp_sync_servermain socket */
   sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -47,22 +49,28 @@ void peer_manange()
   
   //listens for the connection from any peers
   while (1) {
-
+	
+    int udp_port = getUDPPort();
+    int tcp_port = getTCPPort();
+   // printf("11111111111Port number is %d \n",tcp_port);
+    //char buf_to_send[200];
     /* wait for a client to connect */
     desc = accept(sock, (struct sockaddr *)  &addr1, &addrlen);
+    
+   // printf("2222222222222222Port number is %d \n",tcp_port);
     if (desc == -1) 
     {
       fprintf(stderr, "accept failed: %s\n", strerror(errno));
       exit(1);
     }
-
+    //printf("333333333333333Port number is %d \n",tcp_port);
     /* get the file name from the client */
     rc = recv(desc, request_code, sizeof(request_code), 0);
     if (rc == -1) {
       fprintf(stderr, "recv failed: %s\n", strerror(errno));
       exit(1);
     }
-
+   // printf("44444444444444444444444Port number is %d \n",tcp_port);
     /* null terminate and strip any \r and \n from filename */
     request_code[rc] = '\0';
     if (request_code[strlen(request_code)-1] == '\n')
@@ -72,27 +80,35 @@ void peer_manange()
   
     printf("Received reques from client: %s \n",request_code);
     
-    
+  //  printf("555555555555555555555Port number is %d \n",tcp_port);
     /**  The client request the UDP port of this server**/
-    if (strcmp(request_code, MANAGE_CMD_REQ_UDP_PORT) == 0) 
+    
+    
+    
+    if ( 0 == strcmp(request_code, MANAGE_CMD_REQ_UDP_PORT) ) 
     {
-      int udp_port = getUDPPort();
+      
       char buf_to_send[20];
       sprintf(buf_to_send,"%d",udp_port);
-      send(sock, buf_to_send, strlen(buf_to_send), 0);
+      printf("111Port number is %d \n",udp_port);
+      write(desc,buf_to_send,strlen(buf_to_send));
+      //send(sock, buf_to_send, strlen(buf_to_send), 0);
       
     }
     
+    //printf("666666666666666666666666666Port number is %d \n",tcp_port);
     /** The client request the TCP port of this server**/
-    if (strcmp(request_code, MANAGE_CMD_REQ_TCP_PORT) == 0) 
+    //if (strcmp(request_code, MANAGE_CMD_REQ_TCP_PORT) == 0) 
+    if (0 == strcmp(request_code, MANAGE_CMD_REQ_TCP_PORT)) 
     {
-      int tcp_port = getTCPPort();
       char buf_to_send[20];
       sprintf(buf_to_send,"%d",tcp_port);
-      send(sock, buf_to_send, strlen(buf_to_send), 0);
+      printf("2222Port number is %d, buf_to_send is %s\n",tcp_port,buf_to_send);
+      write(desc,buf_to_send,strlen(buf_to_send));
+      //send(sock, buf_to_send, strlen(buf_to_send), 0);
     }
 
-    
+   // printf("777777777777777777776Port number is %d \n",tcp_port);
 
     /*
     //printf("File name is %s \n",filename);

@@ -9,7 +9,7 @@ void *tcp_sync_server()
   int    addrlen;            /* argument to accept */
   struct stat stat_buf;      /* argument to fstat */
   off_t offset = 0;          /* file offset */
-  char filename[25];   		/* filename to send */
+  char filename[25];   		/* filename to rx/tx */
   int rc;                    /* holds return code of system calls */
  
   port = getTCPPort();
@@ -44,7 +44,9 @@ void *tcp_sync_server()
   }
    
   fprintf(stderr, "Just for fun\n");
-
+  
+  
+  
   while (1) {
 
     /* wait for a client to connect */
@@ -53,8 +55,9 @@ void *tcp_sync_server()
       fprintf(stderr, "accept failed: %s\n", strerror(errno));
       exit(1);
     }
-
-    /* get the file name from the client */
+     
+    
+    /** The first step is to get file name from remote client **/
     rc = recv(desc, filename, sizeof(filename), 0);
     if (rc == -1) {
       fprintf(stderr, "recv failed: %s\n", strerror(errno));
@@ -67,7 +70,21 @@ void *tcp_sync_server()
       filename[strlen(filename)-1] = '\0';
     if (filename[strlen(filename)-1] == '\r')
       filename[strlen(filename)-1] = '\0';
-
+    char filepath[250];
+    
+    sprintf(filepath, "%s/%s",get_sync_home_path(),filename);
+    printf("The file name is %s, path is %s",filename,filepath);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /* exit server if filename is "quit" */
     if (strcmp(filename, "quit") == 0) {
       fprintf(stderr, "quit command received, shutting down server\n");

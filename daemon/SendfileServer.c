@@ -44,7 +44,7 @@ int main(int argc, char **argv)
   
   global_transfer_mode = SYAW_SYNC_MODE_TCP; // to set default tranfer mode
   
-  setTCPPort(22202);
+  setTCPPort(22206);
   
   /**  sync_thread synchronize files between peers while listen_thread dealwith request from the GUI **/
   pthread_t sync_tcp_server_thread, listen_thread, sync_tcp_client_thread,sync_udp_server_thread, sync_udp_client_thread, peer_mgr_thread;
