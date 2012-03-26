@@ -14,7 +14,7 @@ void peer_manange()
   char request_code[100];    /* Request Code get from client file SyncIPCMsg.h for details*/
   int rc;
   
-  port = 10020; 		// manage port of SyncAnywhere
+  port = 10021; 		// manage port of SyncAnywhere
   
   
   

@@ -16,7 +16,7 @@ void *tcp_sync_server()
   
   
   printf("The tcp port is %d \n",port);
-   /* create Internet domain socket */
+   /* create Internet domain socke160t */
   sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock == -1) {
     fprintf(stderr, "unable to create socket: %s\n", strerror(errno));
@@ -51,6 +51,7 @@ void *tcp_sync_server()
 
     /* wait for a client to connect */
     desc = accept(sock, (struct sockaddr *)  &addr1, &addrlen);
+    
     if (desc == -1) {
       fprintf(stderr, "accept failed: %s\n", strerror(errno));
       exit(1);

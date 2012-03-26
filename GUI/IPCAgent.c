@@ -52,6 +52,7 @@ static gboolean add_file_to_sync_repos(gchar *filepath)
 {
 	gint buf_len;
 	gchar *msg_buf;
+	printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
 	msg_buf= set_add_sync_file_msg(filepath,20000);
 	printf("In function add_file_to_sync_repos, filepath is%s\n, msg_buf is %s, msg_len is %d \n", filepath,msg_buf,(guint)msg_buf[1]);
 	send_msg_to_daemon(msg_buf);

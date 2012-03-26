@@ -12,7 +12,7 @@ void *sync_listen()
    struct sockaddr_un listen_addr;
    struct sockaddr_un from_name;
    sock = socket(AF_UNIX, SOCK_DGRAM, 0);
-   char buf[160];
+   char buf[300];
    unsigned int req_type; // the GUI request type
      
    
@@ -61,7 +61,7 @@ void *sync_listen()
 		filepath_tmp = get_file_path_from_msg_buf(buf);
 		file_name = basename (filepath_tmp);
 		f_size_tmp = get_file_size(filepath_tmp);
-		//printf("haha,file name is %s, the file path is %s,its length is %d\n",file_name,filepath_tmp,f_size_tmp);
+		printf("haha,file name is %s, the file path is %s,its length is %d\n",file_name,filepath_tmp,f_size_tmp);
 		addItem2SyncRepos(file_name,filepath_tmp,f_size_tmp);
 		//printSyncRepos();
 		break;
