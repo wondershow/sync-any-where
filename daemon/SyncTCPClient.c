@@ -303,11 +303,11 @@ void *tcp_sync_client()
       if(SYAW_SYNC_MODE_UDP == getTransferMode())
       {//Now the application is put into UDP mode, which means this client thread should sleep
 	  sleep(1); // sleep one second 
-	  printf("tcp_sync_client: I am sleeping:\n");
+	  printf("tcp_sync_client: not my duty,I am sleeping:\n");
       } else if(1 == hasMoreItemInSyncRepos() ) ////first check whether we have unsynchronized files 
       {//if we dont have items to sync, then we sleep
 	sleep(1);
-	printf("tcp_sync_client: I am sleeping:\n");
+	printf("tcp_sync_client:nothing to send, I am sleeping:\n");
 	
       } else {
       

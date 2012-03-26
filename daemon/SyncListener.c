@@ -49,7 +49,8 @@ void *sync_listen()
     
     buf[cnt] = '\0';  /* assure null byte */
     from_name.sun_path[fromlen] = '\0';
-    
+    printf("Get msg from GUI %s \n",buf);
+    //continue;
     req_type = (unsigned int) buf[0];
     switch((unsigned int) buf[0])
     {
@@ -71,25 +72,26 @@ void *sync_listen()
 		//printSyncRepos();
 		break;
       case 2:  // tell daemon which mode to use(tcp/udp)
-		
+		printf("Type is 2 \n");
 		msg_len = (unsigned int)buf[1]; // the second byte is length of msg
 		//sprintf(port,%s,)
-		port = (char *)malloc(msg_len-2);
-		printf("Here it is, they want to set tcp/udp,%d, %s\n",protocol,port);
-		strncpy(port,buf+3,msg_len-2);
+		port = 256*((unsigned char)buf[3]) + (unsigned char)buf[4];
+		printf("Here it is, they want to set tcp/udp,%d, %d\n",protocol,port);
+		//strncpy(port,buf+3,msg_len-2);
 		protocol = (unsigned int)buf[2];
 		if(buf[2] == TRANS_PROTOCOL_TCP)
 		{
-		   setTCPPort(atoi(port));
+		   setTCPPort(port);
 		   setTransferMode(SYAW_SYNC_MODE_TCP);
-		   restart_tcp_server();
+		   //restart_tcp_server();
 		}
 		else
 		{
-		   setUDPPort(atoi(port));
+		   setUDPPort(port);
 		   setTransferMode(SYAW_SYNC_MODE_UDP);
+		   //restart_udp_server();
 		}
-		printf("Here it is, they want to set tcp/udp,%d, %s\n",protocol,port);
+		//printf("Here it is, they want to set tcp/udp,%d, %d\n",protocol,port);
 		break;
       case 3:  // reserved
 		break;

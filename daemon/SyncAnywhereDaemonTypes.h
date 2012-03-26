@@ -104,9 +104,15 @@ int hasMoreItemInSyncRepos()
   int res = -1;
   pthread_mutex_lock( &mutex_repos );
   if(queue_head == queue_tail)
+  {
+    printf("No the task queue is empty \n");
     res = 1;
+  }
   else
+  {
+    printf("Yes there is items int the task queue \n");
     res = 0;
+  }
   pthread_mutex_unlock( &mutex_repos );  
   return res;
 }

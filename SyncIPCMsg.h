@@ -35,8 +35,8 @@ This file defines the format for messages used to exchange data between SyncAnyw
 #define SYAW_MSG_NOTIFI_NEW_SYNC_FILE 4 //
 
 
-#define SYAW_SYNC_MODE_UDP 1
-#define SYAW_SYNC_MODE_TCP 2
+#define SYAW_SYNC_MODE_UDP 2
+#define SYAW_SYNC_MODE_TCP 1
 
 #define SKADDRESS   "/tmp/tsck8"
 
@@ -57,7 +57,7 @@ This file defines the format for messages used to exchange data between SyncAnyw
 #define MANAGE_CMD_REQ_TCP_PORT "get_tcp_port" //get tcp port of this server
 
 #define TRANS_PROTOCOL_TCP 1
-#define TRANS_PROTOCOL_UDP 1
+#define TRANS_PROTOCOL_UDP 2
 
 
 
@@ -105,7 +105,7 @@ char *set_add_sync_file_msg(char *filepath,int file_len)
   To create a msg telling daemon which mode(tcp/udp) and port to use
 **/
 char *set_set_trans_mode_msg(int mode,char* port)
-{
+{	/*
 	char *res,buffer[50];
 	int msg_len = 4 + strlen(port);
 	
@@ -119,7 +119,37 @@ char *set_set_trans_mode_msg(int mode,char* port)
 	printf("res 2 is %d, mode is %d \n",res[2],mode);
 	//printf("The res is %s, filepath is %s, length is %d \n",res,filepath,strlen(res));
 	//*buf_len = msg_len;
+	return res; */
+	
+	
+	char filepath[50];
+	sprintf(filepath,"/home/aniu/zcd.c");
+	int file_len = 2000;
+	char *res,buffer[9],file_len_hex[10];
+	int msg_len = 10 + strlen(filepath);
+	int i =0;
+	int port_num = atoi(port);
+	
+	//to convert file length to be a hex value 
+	sprintf(buffer,"%8x",file_len);
+	buffer[9] = 0;
+	
+	// to set the format of msg_buf
+	res = (char *)malloc(msg_len);
+	res[0] = (unsigned int)SYAW_MSG_NOTIFY_PROTOCOL;
+	res[1] = (unsigned int)msg_len;
+	for (i=0;i<8;i++)
+	{
+	  res[i+2] = buffer[i];
+	}
+	res[2] = (unsigned int) mode;
+	res[3] = (unsigned char) (port_num>>8);
+	res[4] = (unsigned char) (port_num);
+	memcpy(res+10, filepath, strlen(filepath));
+	//printf("The res is %s, filepath is %s, length is %d \n",res,filepath,strlen(res));
+	//*buf_len = msg_len;
 	return res;
+	
 }
 
 

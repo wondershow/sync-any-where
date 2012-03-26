@@ -30,7 +30,9 @@
 #include "SyncTCPClient.c"
 #include "SyncListener.c"
 #include "PeerManage.c"
-
+#include "SyncUDPClient.c"
+#include "SyncUDPServer.c"
+#include <sys/time.h>
 
 /**  sync_thread synchronize files between peers while listen_thread dealwith request from the GUI **/
 pthread_t sync_tcp_server_thread, listen_thread, sync_tcp_client_thread,sync_udp_server_thread, sync_udp_client_thread, peer_mgr_thread;
@@ -41,9 +43,15 @@ void restart_tcp_server()
     pthread_kill(sync_tcp_server_thread);
     pthread_create(&sync_tcp_server_thread,NULL,tcp_sync_server,NULL);
     pthread_join( sync_tcp_server_thread, NULL);
-    return;
 }
 
+void restart_udp_server()
+{
+    printf("Tring to restart udp daemon, new port is %d \n", getTCPPort());
+    pthread_kill(sync_udp_server_thread);
+    pthread_create(&sync_udp_server_thread,NULL,udp_sync_server,NULL);
+    pthread_join( sync_udp_server_thread, NULL);
+}
 
 void startDaemon()
 {
@@ -55,9 +63,15 @@ void startDaemon()
   
   //struct passwd *pw = getpwuid(getuid());
 
+  
+  setTransferMode(SYAW_SYNC_MODE_UDP);
+  setTCPPort(20000);
+  setUDPPort(30000);
   set_sync_home();
   
   initializePeerList();
+  
+  
   
   //copy_file_to_apphome("/home/aniu/GoogleCode_Repos/CoursePoroject6620/sync-any-where/daemon/SimpleTCPTransferClient.c");
   
@@ -68,21 +82,21 @@ void startDaemon()
   {
     
   }*/
-  
+  printf("2222222222222222\n");
   iret1 = pthread_create(&listen_thread,NULL,sync_listen,NULL);
   iret2 = pthread_create(&sync_tcp_server_thread,NULL,tcp_sync_server,NULL);
   iret3 = pthread_create(&sync_tcp_client_thread,NULL,tcp_sync_client,NULL);
   iret4 = pthread_create(&peer_mgr_thread,NULL,peer_manange,NULL);
-  
-  
-  //sync_listen();
+  iret5 = pthread_create(&sync_udp_client_thread,NULL,udp_sync_client,NULL);
+  iret5 = pthread_create(&sync_udp_server_thread,NULL,udp_sync_server,NULL);
   
   
   pthread_join( listen_thread, NULL);
   pthread_join( sync_tcp_server_thread, NULL);
   pthread_join( tcp_sync_client, NULL);
   pthread_join( peer_mgr_thread, NULL);
-
+  pthread_join( sync_udp_client_thread, NULL);
+  pthread_join( sync_udp_server_thread, NULL);
 }
 
 int main(int argc, char **argv)
@@ -95,13 +109,7 @@ int main(int argc, char **argv)
   setTransferMode(SYAW_SYNC_MODE_TCP);
   
   global_transfer_mode = SYAW_SYNC_MODE_TCP; // to set default tranfer mode
-  
-  setTCPPort(22206);
-  
-  setUDPPort(33306);
-  
   startDaemon();
-  
   //tcp_sync();
   
   return 0;

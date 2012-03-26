@@ -3,9 +3,9 @@ For GSU CS6620 course project.
 This is the main GUI of SyncAnywhere
 how to compile:
 gcc GUITutor.c -o GUITutor `pkg-config --cflags --libs gtk+-2.0`
-
+gthread-2.0
 TO save time:
-rm -rf GUITutor; gcc GUITutor.c -o GUITutor `pkg-config --cflags --libs gtk+-2.0 --libs gthread`; ./GUITutor
+rm -rf GUITutor; gcc GUITutor.c -o GUITutor `pkg-config --cflags --libs gtk+-2.0 gthread-2.0`; ./GUITutor
 
 ***/
 
@@ -148,23 +148,24 @@ static void radio_button_toggled(GtkWidget *radiobutton, gpointer data)
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radiobutton)))
     {
         g_print("%s active\n", gtk_button_get_label(GTK_BUTTON(radiobutton)));
+	gchar *port;
 	if(strcmp(gtk_button_get_label(GTK_BUTTON(radiobutton)),"UDP")==0)
 	{
-	    gchar *udp_port;
-	    
-	    if(udp_port!=NULL)
+	    //gchar *udp_port;
+	    if(gtk_entry_get_text(GTK_ENTRY(g_udp_port_entry))!=NULL)
 	    {
-	      udp_port = gtk_entry_get_text(GTK_ENTRY(g_udp_port_entry));
-	      change_tcp_udp_port(TRANS_PROTOCOL_UDP,udp_port);
+	      port = gtk_entry_get_text(GTK_ENTRY(g_udp_port_entry));
+	      printf("ZXS1 \"%s\"\n",port);
+	      change_tcp_udp_port(TRANS_PROTOCOL_UDP,port);
 	    }
 	}
 	if(strcmp(gtk_button_get_label(GTK_BUTTON(radiobutton)),"TCP")==0)
 	{
-	    gchar *tcp_port;
-	    if(tcp_port != NULL)
+	    if(gtk_entry_get_text(GTK_ENTRY(g_tcp_port_entry)) != NULL)
 	    {
-	      tcp_port = gtk_entry_get_text(GTK_ENTRY(g_tcp_port_entry));
-	      change_tcp_udp_port(TRANS_PROTOCOL_TCP,tcp_port);
+	      port = gtk_entry_get_text(GTK_ENTRY(g_tcp_port_entry));
+	      printf("ZXS2, port is \"%s\"\n",port);
+	      change_tcp_udp_port(TRANS_PROTOCOL_TCP,port);
 	    }
 	}
     }
@@ -566,13 +567,13 @@ static GtkWidget *set_status_bar( gboolean homogeneous,
 
 }
 
-void gui_listener_thread()
+void *gui_listener_thread()
 {
   while(1)
   {
-    gdk_threads_enter ();
+    gdk_threads_enter();
     printf("Thread test in \n");
-    gdk_threads_leave ();
+    gdk_threads_leave();
     sleep(1);
   }
 }
@@ -591,15 +592,8 @@ int main( int   argc,
 	pthread_t test_thread;
 
 
-
-	/* init threads */	
 	g_thread_init(NULL);
 	gdk_threads_init();
-	gdk_threads_enter ();
-
-
-
-    
 	//GTK routine
 	gtk_init (&argc, &argv);
 
@@ -692,10 +686,20 @@ int main( int   argc,
 	gtk_widget_show (box1);
 	/* Showing the window last so everything pops up at once. */
 	gtk_widget_show (top_window);
-
+	GError *error = NULL;
+	if (!g_thread_create(test_thread,NULL, FALSE, &error))
+	{
+	  g_printerr ("Failed to create YES thread: %s\n", error->message);
+	  return 1;
+	}
+	//pthread_join( test_thread, NULL);
+	
 	/* And of course, our main function. */
+	gdk_threads_enter();
 	gtk_main ();
 	gdk_threads_leave();
+	
+	
 	/* Control returns here when gtk_main_quit() is called, but not when 
 	* exit() is used. */
 	return 0;
