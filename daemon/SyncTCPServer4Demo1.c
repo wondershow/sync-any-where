@@ -1,6 +1,7 @@
-void *udp_sync_server()
+void *tcp_sync_server4demo1()
 {
-  int port;           		/* port number to use */
+  int port;           	/* port number to use */
+  int *port_ptr;
   int sock;                  	/* socket desciptor */
   int desc;  	            	/* file descriptor for socket */
   int fd;                    /* file descriptor for file to send */
@@ -12,10 +13,10 @@ void *udp_sync_server()
   char filename[25];   		/* filename to rx/tx */
   int rc;                    /* holds return code of system calls */
  
-  port = getUDPPort();
-  
-  
-  printf("The UDP port is %d \n",port);
+ //port = getTCPPort();
+
+  port = 55501;
+ 
    /* create Internet domain socke160t */
   sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock == -1) {
@@ -30,6 +31,7 @@ void *udp_sync_server()
   addr.sin_port = htons(port);
 
   /* bind socket to the port */
+
   rc =  bind(sock, (struct sockaddr *)&addr, sizeof(addr));
   if (rc == -1) {
     fprintf(stderr, "unable to bind to socket: %s\n", strerror(errno));
@@ -45,6 +47,7 @@ void *udp_sync_server()
    
   fprintf(stderr, "Just for fun\n");
   
+
   
   
   while (1) {
@@ -58,7 +61,7 @@ void *udp_sync_server()
     }
      
     
-   /** The first step is to get file name from remote client **/
+    /** The first step is to get file name from remote client **/
     rc = recv(desc, filename, sizeof(filename), 0);
     if (rc == -1) {
       fprintf(stderr, "recv failed: %s\n", strerror(errno));
@@ -73,7 +76,7 @@ void *udp_sync_server()
       filename[strlen(filename)-1] = '\0';
     char filepath[250];
     
-    sprintf(filepath, "%s/%s",get_sync_home_path(),filename);
+    sprintf(filepath, "%s1/%s",get_sync_home_path(),filename);
     printf("\n The file name is %s, path is %s \n",filename,filepath);
     
     /**The second step is to reply an OK to client**/

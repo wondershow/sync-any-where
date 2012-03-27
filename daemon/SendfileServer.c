@@ -33,9 +33,15 @@
 #include "SyncUDPClient.c"
 #include "SyncUDPServer.c"
 #include <sys/time.h>
+#include "SyncTCPServer4Demo1.c"
+#include "SyncTCPServer4Demo2.c"
+#include "SyncUDPServer4Demo1.c"
+#include "SyncUDPServer4Demo2.c"
 
 /**  sync_thread synchronize files between peers while listen_thread dealwith request from the GUI **/
 pthread_t sync_tcp_server_thread, listen_thread, sync_tcp_client_thread,sync_udp_server_thread, sync_udp_client_thread, peer_mgr_thread;
+pthread_t demo_udp_server1,demo_udp_server2,demo_tcp_server1,demo_tcp_server2;
+
 
 void restart_tcp_server()
 {
@@ -86,9 +92,19 @@ void startDaemon()
   iret1 = pthread_create(&listen_thread,NULL,sync_listen,NULL);
   iret2 = pthread_create(&sync_tcp_server_thread,NULL,tcp_sync_server,NULL);
   iret3 = pthread_create(&sync_tcp_client_thread,NULL,tcp_sync_client,NULL);
+  
   iret4 = pthread_create(&peer_mgr_thread,NULL,peer_manange,NULL);
+  
   iret5 = pthread_create(&sync_udp_client_thread,NULL,udp_sync_client,NULL);
-  iret5 = pthread_create(&sync_udp_server_thread,NULL,udp_sync_server,NULL);
+  iret6 = pthread_create(&sync_udp_server_thread,NULL,udp_sync_server,NULL);
+  
+  //demo_udp_server1,demo_udp_server2,demo_tcp_server1,demo_tcp_server2;
+  int *a = 55502;
+  pthread_create(&demo_tcp_server1,NULL,tcp_sync_server4demo1,NULL);
+  pthread_create(&demo_tcp_server2,NULL,tcp_sync_server4demo2,NULL);
+  pthread_create(&demo_udp_server1,NULL,udp_sync_server4demo1,NULL);
+  pthread_create(&demo_udp_server2,NULL,udp_sync_server4demo2,NULL);
+//   pthread_create(&demo_tcp_server2,NULL,tcp_sync_server,NULL);
   
   
   pthread_join( listen_thread, NULL);
@@ -97,6 +113,17 @@ void startDaemon()
   pthread_join( peer_mgr_thread, NULL);
   pthread_join( sync_udp_client_thread, NULL);
   pthread_join( sync_udp_server_thread, NULL);
+  
+  pthread_join( demo_tcp_server1, NULL);
+  pthread_join( demo_tcp_server2, NULL);
+  pthread_join( demo_udp_server1, NULL);
+  pthread_join( demo_udp_server2, NULL);
+//   pthread_join( demo_udp_server2, NULL);
+//   pthread_join( demo_tcp_server1, NULL);
+//   pthread_join( demo_tcp_server2, NULL);
+  
+  
+
 }
 
 int main(int argc, char **argv)
