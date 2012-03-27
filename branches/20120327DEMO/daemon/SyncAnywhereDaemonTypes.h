@@ -13,9 +13,8 @@ typedef struct sync_file_items
   char filepath[150];
   unsigned int file_size;
   char dest_ip[20];
-  
-  
-  
+  int dest_tcp_port;
+  int dest_udp_port;
   int is_used; 
 } SyncReposItem;
 
@@ -52,13 +51,12 @@ void initializeSyncRepos()
 void addItem2SyncRepos(char *filename, char *filepath, unsigned int file_len)
 {
   pthread_mutex_lock( &mutex_repos );
-  
-  
+  /* //for modification for demo, this part has to be comment out
   int i;
   for(i=0;i<MAX_PEER_NUM;i++)
   {
     if(peer_list[i].is_used==0 && is_local_ip(peer_list[i].ip) == 0)
-    { 	// when this peer_list item is valid and its correponding ip is not the local machine
+    { 	//when this peer_list item is valid and its correponding ip is not the local machine
 	strcpy((char *)(syncfile_repos[queue_head].filename),filename );
 	strcpy((char *)(syncfile_repos[queue_head].filepath),filepath );
 	sprintf(syncfile_repos[queue_head].dest_ip,"%s",peer_list[i].ip);
@@ -69,7 +67,34 @@ void addItem2SyncRepos(char *filename, char *filepath, unsigned int file_len)
 	  queue_head = 0;
 	}
     }
+  } */
+  
+  
+  strcpy((char *)(syncfile_repos[queue_head].filename),filename );
+  strcpy((char *)(syncfile_repos[queue_head].filepath),filepath );
+  sprintf(syncfile_repos[queue_head].dest_ip,"localhost");
+  syncfile_repos[queue_head].file_size = file_len;
+  syncfile_repos[queue_head].dest_tcp_port = 55501;
+  syncfile_repos[queue_head].dest_udp_port = 55601;
+  queue_head++;
+  if(queue_head==MAX_REPOS_NUM)
+  {
+    queue_head = 0;
   }
+  
+  
+  strcpy((char *)(syncfile_repos[queue_head].filename),filename );
+  strcpy((char *)(syncfile_repos[queue_head].filepath),filepath );
+  sprintf(syncfile_repos[queue_head].dest_ip,"localhost");
+  syncfile_repos[queue_head].file_size = file_len;
+  syncfile_repos[queue_head].dest_tcp_port = 55502;
+  syncfile_repos[queue_head].dest_udp_port = 55602;
+  queue_head++;
+  if(queue_head==MAX_REPOS_NUM)
+  {
+    queue_head = 0;
+  }
+  
   
   pthread_mutex_unlock( &mutex_repos );
 }
@@ -81,6 +106,24 @@ void getCurrentUnsyncedFile(char *filename, unsigned int *file_len, char *ip)
   *file_len = syncfile_repos[queue_tail].file_size;
   sprintf(ip,"%s", syncfile_repos[queue_tail].dest_ip);
 }
+
+void getCurrentUnsyncedFile4DemoTCP(char *filename, unsigned int *file_len, char *ip,int *tcp_port)
+{
+  sprintf(filename,"%s", syncfile_repos[queue_tail].filename);
+  *file_len = syncfile_repos[queue_tail].file_size;
+  sprintf(ip,"%s", syncfile_repos[queue_tail].dest_ip);
+  *tcp_port = syncfile_repos[queue_tail].dest_tcp_port;
+}
+
+void getCurrentUnsyncedFile4DemoUDP(char *filename, unsigned int *file_len, char *ip,int *udp_port)
+{
+  sprintf(filename,"%s", syncfile_repos[queue_tail].filename);
+  *file_len = syncfile_repos[queue_tail].file_size;
+  sprintf(ip,"%s", syncfile_repos[queue_tail].dest_ip);
+  *udp_port = syncfile_repos[queue_tail].dest_udp_port;
+}
+
+
 
 /**
   to remove an item into sync repository, it should be a thread safe way

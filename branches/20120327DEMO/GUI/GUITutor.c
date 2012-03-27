@@ -25,6 +25,7 @@ UnsyncFileList *g_usync_list_head; // a linked list for those unsynced files
 GtkWidget *g_udp_port_entry;
 GtkWidget *g_tcp_port_entry;
 GtkWidget  *progress_bar_label;
+char transfer_history[1000];
 
 //send_msg_to_daemon1
 static gboolean delete_event( GtkWidget *widget,
@@ -486,7 +487,7 @@ static GtkWidget *set_header( gboolean homogeneous,
     g_head_label = gtk_label_new ("SyncAnywhere!");
     gtk_widget_set_name (g_head_label,"label_head");
      
-    gtk_label_set_markup(g_head_label, "<span font_style='italic' font='25' color='brown'>SyncAnywhere</span>");
+    gtk_label_set_markup(g_head_label, "<span font_style='italic' font='25' color='brown'>6620 Demo</span>");
 
     gtk_box_pack_start (GTK_BOX (box), g_head_label, expand, fill, padding);
     gtk_widget_show (g_head_label);
@@ -509,6 +510,7 @@ set_progress_bar(int bytes_sent, char *file_name, int file_length,int port)
     int i=0;
     int progress_bar_width = 64;
     sprintf(buf_tmp,"%s","");
+    int last_info_for_file = 0; // to indicate whether this is the last info update for that file transfer, as last info update contains special information(0 No, 1 Yes)
     
     
     for(i=0;i<progress_bar_width;i++)
@@ -522,6 +524,7 @@ set_progress_bar(int bytes_sent, char *file_name, int file_length,int port)
     { // finished task
       tranfer_sec = file_length;
       file_length = bytes_sent;
+      last_info_for_file = 1;
     }
       printf("%s\n",buf_tmp);
       float per = (float) (bytes_sent)/(float) (file_length);
@@ -541,11 +544,22 @@ set_progress_bar(int bytes_sent, char *file_name, int file_length,int port)
       
       memcpy(buf_tmp,process_info,strlen(process_info));
       
-      char progress_bar_buf[300];
+      char progress_bar_buf[500];
       
-      sprintf(progress_bar_buf,"<span font_style='italic' font='10' color='brown'>%s</span>",buf_tmp);
       
-    gtk_label_set_markup(progress_bar_label, progress_bar_buf);
+     
+    
+      sprintf(progress_bar_buf,"<span font_style='italic' font='10' color='brown'>%s\n%s</span>",transfer_history,buf_tmp);
+     
+     
+      
+      if(last_info_for_file==1)
+      {
+	//char buf_tmp_info[500];
+	//if(transfer_history == NULL)
+	sprintf(transfer_history,"%s\n%s",transfer_history,buf_tmp);
+      }
+      gtk_label_set_markup(progress_bar_label, progress_bar_buf);
 }
 
 
@@ -607,6 +621,8 @@ int main( int   argc,
 	//Initialize for the unsynced file list
         g_usync_list_head = (UnsyncFileList *) g_malloc(sizeof(UnsyncFileList));
 	g_usync_list_head->next = NULL;
+	
+	sprintf(transfer_history,""); // to initialize tranfer_history
 	
 	//to set application home directory if necessary
 	set_sync_home();
@@ -683,7 +699,7 @@ int main( int   argc,
     
 	/* Pack the vbox (box1) which now contains all our widgets, into the
 	* main window. */
-	gtk_window_set_default_size(GTK_WINDOW(top_window),700,500);
+	gtk_window_set_default_size(GTK_WINDOW(top_window),700,550);
 	gtk_container_add (GTK_CONTAINER (top_window), box1);
 
 
