@@ -15,7 +15,7 @@ rm -rf GUITutor; gcc GUITutor.c -o GUITutor `pkg-config --cflags --libs gtk+-2.0
 #include "baselib.h"
 #include "../SyncIPCMsg.h"
 #include "IPCAgent.c"
-
+#include "GUIListner.c"
 
 GtkWidget * g_head_label;
 GtkTextBuffer * g_unsync_tv_buffer; // to display unsynced file names
@@ -503,11 +503,11 @@ static GtkWidget *set_header( gboolean homogeneous,
     return box;
 }
 
-set_progress_bar(int bytes_sent, char *file_name, int file_length)
+set_progress_bar(int bytes_sent, char *file_name, int file_length,int port)
 {
     char buf_tmp[105];
     int i=0;
-    int progress_bar_width = 50;
+    int progress_bar_width = 64;
     sprintf(buf_tmp,"%s","");
     
     
@@ -516,25 +516,36 @@ set_progress_bar(int bytes_sent, char *file_name, int file_length)
       strcat(buf_tmp,"=");
     }
     
+    int tranfer_sec = 0;
     
-    printf("%s\n",buf_tmp);
-    int percentage = (int)(100*bytes_sent/file_length);
-    char per_buf[50];
-    sprintf(per_buf,"(%d%%)",percentage);
-    
-    char process_info[100];
-    sprintf(process_info,"%s%s",file_name,per_buf);
-    for(i=0;i<(int) (progress_bar_width*bytes_sent/file_length);i++)
-    {
-      buf_tmp[i] = '>';
+    if(bytes_sent >file_length)
+    { // finished task
+      tranfer_sec = file_length;
+      file_length = bytes_sent;
     }
-    
-    memcpy(buf_tmp+20,process_info,strlen(process_info));
-    
-    char progress_bar_buf[300];
-    sprintf(progress_bar_buf,"<span font_style='italic' font='10' color='brown'>%s</span>",buf_tmp);
+      printf("%s\n",buf_tmp);
+      float per = (float) (bytes_sent)/(float) (file_length);
+      int percentage = (int)(100 * per);
+      char per_buf[50];
+      if(tranfer_sec == 0)
+	sprintf(per_buf,"(%d%%)",percentage);
+      else
+	sprintf(per_buf,"(%d%%,Done,%dS)",percentage,tranfer_sec);
+      
+      char process_info[100];
+      sprintf(process_info,"%s,port:(%d),%s",file_name,port,per_buf);
+      for(i=0; i< (int) (progress_bar_width*per);i++)
+      {
+	buf_tmp[i] = '>';
+      }
+      
+      memcpy(buf_tmp,process_info,strlen(process_info));
+      
+      char progress_bar_buf[300];
+      
+      sprintf(progress_bar_buf,"<span font_style='italic' font='10' color='brown'>%s</span>",buf_tmp);
+      
     gtk_label_set_markup(progress_bar_label, progress_bar_buf);
-
 }
 
 
@@ -558,8 +569,8 @@ static GtkWidget *set_status_bar( gboolean homogeneous,
     box = gtk_hbox_new (FALSE, spacing);
     
     progress_bar_label = gtk_label_new ("SyncAnywhere!");
-    gtk_label_set_markup(progress_bar_label, "<span font_style='italic' font='25' color='brown'>This is the status bar</span>");
-
+    gtk_label_set_markup(progress_bar_label, "<span font_style='italic' font='25' color='brown'>This is the progress bar</span>");
+    //set_progress_bar(100,"test.txt",500);
     gtk_box_pack_start (GTK_BOX (box), progress_bar_label, expand, fill, padding);
     gtk_widget_show (progress_bar_label);
     
@@ -567,16 +578,9 @@ static GtkWidget *set_status_bar( gboolean homogeneous,
 
 }
 
-void *gui_listener_thread()
-{
-  while(1)
-  {
-    gdk_threads_enter();
-    printf("Thread test in \n");
-    gdk_threads_leave();
-    sleep(1);
-  }
-}
+
+
+
 
 int main( int   argc,
           char *argv[]) 
@@ -679,17 +683,19 @@ int main( int   argc,
     
 	/* Pack the vbox (box1) which now contains all our widgets, into the
 	* main window. */
-	gtk_window_set_default_size(GTK_WINDOW(top_window),700,700);
+	gtk_window_set_default_size(GTK_WINDOW(top_window),700,500);
 	gtk_container_add (GTK_CONTAINER (top_window), box1);
 
 
 	gtk_widget_show (box1);
 	/* Showing the window last so everything pops up at once. */
 	gtk_widget_show (top_window);
-	GError *error = NULL;
-	if (!g_thread_create(test_thread,NULL, FALSE, &error))
+	
+	
+
+	if (!g_thread_create(gui_listener_thread,NULL, FALSE, NULL))
 	{
-	  g_printerr ("Failed to create YES thread: %s\n", error->message);
+	  g_printerr ("Failed to create YES thread \n");
 	  return 1;
 	}
 	//pthread_join( test_thread, NULL);
