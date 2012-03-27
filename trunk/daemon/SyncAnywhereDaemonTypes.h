@@ -174,3 +174,35 @@ int initializePeerList()
   peer_list[1].is_used = 0;
 }
 
+
+/**
+To send a msg to GUI via unix domain socket
+**/
+int send_msg_to_gui(char *buf)
+{
+  struct sockaddr_un dest_addr;
+  int bytes_sent;
+  int   sock,errno;
+  
+  printf("I am in the test_send_msg_to_gui, the buff is%s \n",  buf);
+  
+  memset(&dest_addr, 0, sizeof(dest_addr));
+  dest_addr.sun_family = AF_UNIX;
+  strcpy(dest_addr.sun_path, SK_GUI_ADDRESS1);
+  
+  sock = socket(AF_UNIX, SOCK_DGRAM, 0);
+  
+  if (sock < 0) 
+  {
+    printf("socket failure %d\n", errno);
+    exit(1);
+  }
+
+  
+  bytes_sent = sendto(sock, buf, strlen(buf),0, &dest_addr, sizeof(struct sockaddr_un));
+  
+  if (bytes_sent < 0) {
+    printf("sendto failure %d\n", errno);
+    exit(1);
+  }
+}

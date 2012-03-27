@@ -214,13 +214,25 @@ int tcpsend_file_to_remote_peer(char *filename,char *dest_ip,int port)
      ssize_t numRead;
      int buf_size = 1000;
      char send_buf[buf_size];
- 
+     int file_size = get_file_size(filepath);
+     
+     
      inputFd = open(filepath, O_RDONLY);
      if (inputFd == -1)
          printf("opening file error");
  
+     
+     //time of transfer
+      struct timeval tv;
+      gettimeofday(&tv,NULL);
+      int start = tv.tv_sec;
+      
+      
+      
      /* Transfer data until we encounter end of input or an error */
      int byteSend = 0; 
+     char *tmp_buf;
+     int i = 0;
      while ((numRead = read(inputFd, send_buf, buf_size)) > 0)
      {
          if (write(sd, send_buf, numRead) != numRead)
@@ -228,10 +240,25 @@ int tcpsend_file_to_remote_peer(char *filename,char *dest_ip,int port)
 	 else
 	 {
 	     byteSend += numRead;
-	     printf("Bytes sent: %d",byteSend);
+	     //printf("Bytes sent: %d",byteSend);
 	 }
-	     
+	 
+	 i++;
+	 //send progress report to GUI
+	 if( i%1500 == 0)
+	 {
+	    tmp_buf = set_progress_notify_info(byteSend,file_size, filename, port, dest_ip);
+	    send_msg_to_gui(tmp_buf);
+	 }
      }
+     
+     gettimeofday(&tv,NULL);
+      int end = tv.tv_sec;
+      gettimeofday(&tv,NULL);
+      int duration = end-start;
+     tmp_buf = set_progress_notify_info(byteSend,duration, filename, port, dest_ip);
+     send_msg_to_gui(tmp_buf);
+     //byteSend 
      close(inputFd);
     
     

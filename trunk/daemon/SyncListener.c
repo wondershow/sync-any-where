@@ -1,11 +1,13 @@
 //used for unix domain socket addressing
 #define SKADDRESS     "/tmp/tsck8"
 
+
+
 /**
 This function listens the socks from GUI, and distribute the
 different GUI request to daemon function
 */
-void *sync_listen()
+void *sync_listen(void *args)
 {
    int   sock,errno;
    int   fromlen, cnt;
@@ -14,7 +16,7 @@ void *sync_listen()
    sock = socket(AF_UNIX, SOCK_DGRAM, 0);
    char buf[300];
    unsigned int req_type; // the GUI request type
-     
+   
    
    fprintf(stderr, "Just for fun, in sync_ioctl\n");
    
@@ -63,6 +65,7 @@ void *sync_listen()
       int port_num;
       int msg_len;
       int protocol;
+      
       case 1:  //add a new file into sync repos
 		filepath_tmp = get_file_path_from_msg_buf(buf);
 		file_name = basename (filepath_tmp);

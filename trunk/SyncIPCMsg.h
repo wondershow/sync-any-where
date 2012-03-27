@@ -59,7 +59,7 @@ This file defines the format for messages used to exchange data between SyncAnyw
 #define TRANS_PROTOCOL_TCP 1
 #define TRANS_PROTOCOL_UDP 2
 
-
+#define SK_GUI_ADDRESS1 "/tmp/zcd1"
 
 
 #define STR_VALUE(val) #val
@@ -67,6 +67,10 @@ This file defines the format for messages used to exchange data between SyncAnyw
 
 #define PATH_LEN 256
 #define MD5_LEN 32
+
+
+#define GUI_MSG_PROGRESS_NOTIFY 1
+#define GUI_MSG_ADD_NEW_FILE 2
 
 
 char global_sync_home[200]; // THE Home repository of SyncAnywhere at current machine
@@ -99,7 +103,6 @@ char *set_add_sync_file_msg(char *filepath,int file_len)
 	//*buf_len = msg_len;
 	return res;
 }
-
 
 /**
   To create a msg telling daemon which mode(tcp/udp) and port to use
@@ -150,6 +153,76 @@ char *set_set_trans_mode_msg(int mode,char* port)
 	//*buf_len = msg_len;
 	return res;
 	
+}
+
+/**
+  to package an buffer msg, telling GUI about the file transfering progress
+**/
+
+char *set_progress_notify_info(int byte_send,int file_size, char *filename, int port, char *dest_ip)
+{
+      char *res,buffer[20],file_len_hex[10];
+      
+      /**
+      msg format:
+      bytes                   description
+      0          msg_type(can be GUI_MSG_PROGRESS_NOTIFY or else)
+      1          msg_length (the total length of this msg)
+      2-3          port (2 is high, 3 is low)
+      4-19          dest_ip (char)
+      20-27        bytes sent
+      28-35        file length
+      36-end       file name
+      **/ 
+      int msg_len = 36 + strlen(filename);
+      int i =0;
+      
+      char byte_send_buffer[20];
+      char file_size_buffer[20];
+      
+      
+      // to set the format of msg_buf
+      res = (char *)malloc(msg_len);
+      for(i=0;i< msg_len; i++)
+      {
+	res[i] = "\t";
+      }
+      
+      
+      res[0] = (unsigned int)GUI_MSG_PROGRESS_NOTIFY;
+      res[1] = (unsigned int)msg_len;
+      res[2] = (unsigned char)(port >> 8);
+      res[3] = (unsigned char)(port);
+      for(i=4;i<=19;i++)
+      {
+	res[i] = " ";
+      }
+      for(i=4;i<4+strlen(dest_ip);i++)
+      {
+	res[i] = dest_ip[i-4];
+      }
+      
+      sprintf(byte_send_buffer,"%8x",byte_send);
+      sprintf(file_size_buffer,"%8x",file_size);
+      for(i=0;i<8;i++)
+      {
+	res[20+i] = byte_send_buffer[i];
+	res[28+i] = file_size_buffer[i];
+      }
+     
+      for(i=36;i<msg_len;i++)
+      {
+	res[i] = filename[i-36];
+      }
+      
+//       for (i=0;i<8;i++)
+//       {
+// 	res[i+2] = buffer[i];
+//       }
+//       memcpy(res+10, filepath, strlen(filepath));
+      printf("The res is %s,  length is %d, mes_len = %d \n",res,strlen(res),msg_len);
+      //*buf_len = msg_len;
+      return res;
 }
 
 
@@ -339,7 +412,6 @@ void *add_file_into_resource(char *file_path)
     sprintf(line_buf,"%s,%lld,%s \n",basename(file_path), (long long)st.st_mtim.tv_sec, md5);
     fprintf(fd,line_buf);
     fclose(fd);
-    
 }
 
 int test_md5(char *filepath)

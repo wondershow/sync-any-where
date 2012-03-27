@@ -15,7 +15,7 @@ static gboolean send_msg_to_daemon(gchar *buf)
   gint bytes_sent;
   int   sock,errno;
   
-  printf("I am in the send_msg_to_daemon, the buff is%s \n",  buf);
+  printf("AAAAAAAAAAAAAAAAAAAAAAAA I am in the send_msg_to_daemon, the buff is%s \n",  buf);
   
   memset(&dest_addr, 0, sizeof(dest_addr));
   dest_addr.sun_family = AF_UNIX;
@@ -55,10 +55,10 @@ static gboolean add_file_to_sync_repos(gchar *filepath)
 
 static gboolean change_tcp_udp_port(int mode, char *port)
 {
-      gchar *msg_buf;
-      printf("In the function of change_tcp_udp_port, mode is %d,port is %s \n",mode,port );
-      msg_buf= set_set_trans_mode_msg(mode, port);
-      send_msg_to_daemon(msg_buf);
+	gchar *msg_buf;
+	printf("In the function of change_tcp_udp_port, mode is %d,port is %s \n",mode,port );
+	msg_buf= set_set_trans_mode_msg(mode, port);
+	send_msg_to_daemon(msg_buf);
 }
 
 
